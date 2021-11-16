@@ -1,0 +1,7 @@
+@host = http://localhost:3333/api/v1/products
+
+### Get All Products
+GET {{host}}
+
+### Get Static Products
+GET {{host}}/static
