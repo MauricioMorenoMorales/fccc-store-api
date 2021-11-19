@@ -1,7 +1,28 @@
 @host = http://localhost:3333/api/v1/products
 
-### Get All Products
+### Standard petition
+GET {{host}}
+
+### Get All Products Featured
 GET {{host}}?featured=true
+
+### Get All Products Company Name
+GET {{host}}?featured=false&company=ikea
+
+### Get All Products getting name
+GET {{host}}?featured=false&company=ikea&name=f
+
+### Get All Products name
+GET {{host}}?name=e
+
+### Sorting Data
+GET {{host}}?sort=name,-price
+
+###Fields
+GET {{host}}?fields=name
+
+###Limit the info
+GET {{host}}?fields=name&limit=1
 
 ### Get Static Products
 GET {{host}}/static
