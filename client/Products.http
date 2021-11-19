@@ -24,5 +24,8 @@ GET {{host}}?fields=name
 ###Limit the info
 GET {{host}}?fields=name&limit=1
 
+### Numeric Filters
+GET {{host}}?numericFilters=price>40,rating>=4
+
 ### Get Static Products
 GET {{host}}/static

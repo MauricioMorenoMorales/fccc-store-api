@@ -2,7 +2,9 @@ const Product = require('../models/product.model');
 
 module.exports.getAllProductsStatic = async (req, res) => {
 	const search = 'u';
-	const products = await Product.find({}).select('name price').limit(10);
+	const products = await Product.find({ price: { $gt: 30 } })
+		.select('name price')
+		.limit(20);
 	res.status(200).json({
 		products,
 		nbHits: products.length,
@@ -10,9 +12,9 @@ module.exports.getAllProductsStatic = async (req, res) => {
 };
 
 module.exports.getAllProducts = async (req, res) => {
-	const { featured, company, name, sort, fields } = req.query;
+	const { featured, company, name, sort, fields, numericFilters } = req.query;
 	const queryObject = {};
-	//Verifies te query params
+	//Queries used before getting the data
 	if (featured) {
 		queryObject.featured = featured === 'true';
 	}
@@ -22,7 +24,30 @@ module.exports.getAllProducts = async (req, res) => {
 	if (name) {
 		queryObject.name = { $regex: name, $options: 'i' };
 	}
+	if (numericFilters) {
+		const operatorMap = {
+			'>': '$gt',
+			'>=': '$gte',
+			'=': '$gte',
+			'<': '$lt',
+			'<=': '$lte',
+		};
+		const regEx = /\b(<|>|>=|=|<|<=)\b/g;
+		let filters = numericFilters.replace(
+			regEx,
+			match => `-${operatorMap[match]}-`,
+		);
+		const options = ['price', 'rating'];
+		filters = filters.split(',').forEach(item => {
+			const [field, operator, value] = item.split('-');
+			if (options.includes(field)) {
+				queryObject[field] = { [operator]: Number(value) };
+			}
+		});
+		console.log(filters);
+	}
 	let result = Product.find(queryObject);
+	//Queries used after getting the data
 	if (sort) {
 		const sortList = sort.split(',').join(' ');
 		result = result.sort(sortList);
@@ -38,7 +63,7 @@ module.exports.getAllProducts = async (req, res) => {
 	const limit = Number(req.query.limit) || 10;
 	const skip = (page - 1) * limit;
 
-	result = result.skip(skip).limit(limit)
+	result = result.skip(skip).limit(limit);
 	const products = await result;
 	res.status(200).json({ products, nbHits: products.length });
 };
