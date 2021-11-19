@@ -1,8 +1,14 @@
-module.exports.getAllProductsStatic = async (req, res) => {
-	throw new Error('Testing async errors');
-	res.status(200).json({ message: 'Products testing static route' });
-};
+const Product = require('../models/product.model');
 
 module.exports.getAllProducts = async (req, res) => {
-	res.status(200).json({ message: 'Products testing route' });
+	const products = await Product.find(req.query);
+	res.status(200).json({ products, nbHits: products.length });
+};
+
+module.exports.getAllProductsStatic = async (req, res) => {
+	const products = await Product.find({});
+	res.status(200).json({
+		products,
+		nbHits: products.length,
+	});
 };
